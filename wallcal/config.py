@@ -2,10 +2,14 @@
 from __future__ import annotations
 
 import os
-import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 from zoneinfo import ZoneInfo
+
+try:
+    import tomllib
+except ImportError:  # Python older than 3.11
+    import tomli as tomllib
 
 DEFAULT_PATH = Path("~/.config/wallcal/config.toml").expanduser()
 

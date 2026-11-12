@@ -16,6 +16,8 @@ This is MK1, Stage 1: the software running on a Mac.
 
 ## Try it with made-up calendars
 
+Needs Python 3.11 or newer (check with `python3 --version`).
+
 ```
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
