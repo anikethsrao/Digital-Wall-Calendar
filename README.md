@@ -30,7 +30,8 @@ open out/panel.png
 
 1. Copy `config.example.toml` to `~/.config/wallcal/config.toml`.
 2. Paste in each calendar's private iCal link and pick its colour.
-3. Run `python -m wallcal run` and open http://localhost:8000/.
+3. Run `python -m wallcal check` to test each link. It says why any link fails.
+4. Run `python -m wallcal run` and open http://localhost:8000/.
 
 Your links stay in that file on your computer. They are never part of this repository.
 

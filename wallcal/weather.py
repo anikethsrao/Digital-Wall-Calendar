@@ -55,8 +55,10 @@ def fetch(cfg: Config) -> Forecast | None:
         "temperature_unit": w.units, "timezone": str(cfg.timezone), "forecast_days": 4,
     })
     try:
+        from .calendars import _ssl_context
         with urllib.request.urlopen(
-            f"https://api.open-meteo.com/v1/forecast?{query}", timeout=30
+            f"https://api.open-meteo.com/v1/forecast?{query}", timeout=30,
+            context=_ssl_context(),
         ) as resp:
             data = json.load(resp)
         d = data["daily"]
@@ -74,7 +76,8 @@ def fetch(cfg: Config) -> Forecast | None:
         cache.parent.mkdir(parents=True, exist_ok=True)
         cache.write_text(json.dumps(asdict(forecast)))
         return forecast
-    except Exception:
+    except Exception as exc:
+        print(f"Weather could not be loaded: {type(exc).__name__}: {exc}")
         return load_file(cache)
 
 

@@ -1,15 +1,16 @@
-"""Command line:  python -m wallcal render   |   python -m wallcal run"""
+"""Command line:  python -m wallcal check | render | run"""
 import argparse
 from datetime import datetime
 from pathlib import Path
 
-from . import config, hub, weather
+from . import calendars, config, hub, render, weather
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(prog="wallcal")
-    ap.add_argument("command", choices=["render", "run"],
-                    help="render: draw once and exit. run: keep checking and serve the preview.")
+    ap.add_argument("command", choices=["check", "render", "run"],
+                    help="check: test each calendar link. render: draw once and exit. "
+                         "run: keep checking and serve the preview.")
     ap.add_argument("--config", help=f"settings file (default {config.DEFAULT_PATH})")
     ap.add_argument("--out", help="where to write the images (default <data_dir>/out)")
     ap.add_argument("--now", help="pretend it is this local time, e.g. 2026-11-11T20:30 (for testing)")
@@ -18,6 +19,10 @@ def main() -> None:
 
     cfg = config.load(args.config)
     out = Path(args.out).expanduser() if args.out else cfg.data_dir / "out"
+    if args.command == "check":
+        today = datetime.now(cfg.timezone).date()
+        ok = calendars.check(cfg, *render.window(today, cfg.week_start))
+        raise SystemExit(0 if ok else 1)
     if args.command == "run":
         hub.run(cfg, out)
         return

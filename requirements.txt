@@ -2,3 +2,4 @@ icalendar>=6
 recurring-ical-events>=3
 Pillow>=10
 tomli; python_version < "3.11"
+certifi
