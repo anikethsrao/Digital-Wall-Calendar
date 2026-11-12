@@ -1,0 +1,25 @@
+# Made-up calendars for trying the software without any real data.
+timezone = "America/Toronto"
+week_start = "sunday"
+
+[display]
+width = 1200
+height = 1600
+
+[hub]
+data_dir = "~/.local/share/wallcal-sample"
+
+[[calendar]]
+name = "Family"
+url = "family.ics"
+colour = "blue"
+
+[[calendar]]
+name = "Work"
+url = "work.ics"
+colour = "red"
+
+[[calendar]]
+name = "School"
+url = "school.ics"
+colour = "green"

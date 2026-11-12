@@ -1,0 +1,5 @@
+{"place": "Toronto", "unit": "C", "now": 4, "summary": "Cloudy", "days": [
+ {"date": "2026-11-11", "high": 6, "low": 1, "summary": "Cloudy"},
+ {"date": "2026-11-12", "high": 8, "low": 2, "summary": "Rain"},
+ {"date": "2026-11-13", "high": 5, "low": -1, "summary": "Partly cloudy"},
+ {"date": "2026-11-14", "high": 3, "low": -2, "summary": "Snow"}]}

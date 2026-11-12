@@ -1,0 +1,27 @@
+# Copy this file to ~/.config/wallcal/config.toml and fill it in.
+# That copy holds your private calendar links, so it lives outside this repository.
+
+timezone = "America/Toronto"
+week_start = "sunday"        # or "monday"
+clock = 12                   # 12 or 24 hour times
+
+[display]
+width = 1200                 # image size in pixels; change when the panel is chosen
+height = 1600
+
+[weather]
+name = "Toronto"
+latitude = 43.65
+longitude = -79.38
+units = "celsius"            # or "fahrenheit"
+
+[hub]
+check_minutes = 5            # how often to look for changes
+port = 8000                  # preview page at http://localhost:8000/
+
+# One block per calendar. The link is the calendar's private iCal address.
+# Colours: blue, red, green, yellow, black.
+[[calendar]]
+name = "Family"
+url = "webcal://example.com/your-private-link.ics"
+colour = "blue"
