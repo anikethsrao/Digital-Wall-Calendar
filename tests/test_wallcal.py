@@ -161,3 +161,15 @@ def test_busy_day_shows_a_more_line(tmp_path):
     grouped = days(busy, date(2026, 11, 1), date(2026, 12, 5))
     assert len(grouped[date(2026, 11, 14)]) == 12
     render.render(cfg, grouped, None, now)  # must not overflow or crash
+
+
+def test_check_reports_bad_links_in_plain_words(tmp_path, capsys):
+    cfg = _sample_cfg(tmp_path)
+    (tmp_path / "page.html").write_text("<html>Sign in</html>")
+    cfg.calendars[0].url = str(tmp_path / "page.html")
+    cfg.calendars[1].url = "missing.ics"
+    assert calendars.check(cfg, date(2026, 11, 1), date(2026, 12, 5)) is False
+    out = capsys.readouterr().out
+    assert "FAIL  Family: the link did not return calendar data" in out
+    assert "FAIL  Work: no such file" in out
+    assert "OK    School:" in out
