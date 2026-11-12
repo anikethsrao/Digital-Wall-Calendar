@@ -4,7 +4,7 @@ A household wall calendar. A small hub service reads everyone's calendars, draws
 the month as one picture, and every screen just shows that picture. The same
 picture will later go to a battery-powered colour e-ink panel on the wall.
 
-This is MK1, Stage 1: the software running on a Mac.
+It runs on a Mac (Stage 1) and on a Raspberry Pi with a monitor (Stage 2).
 
 ## What it does
 
@@ -34,6 +34,10 @@ open out/panel.png
 4. Run `python -m wallcal run` and open http://localhost:8000/.
 
 Your links stay in that file on your computer. They are never part of this repository.
+
+## Raspberry Pi
+
+See [docs/raspberry-pi.md](docs/raspberry-pi.md) to run it on a Pi with a monitor.
 
 ## Files it writes
 

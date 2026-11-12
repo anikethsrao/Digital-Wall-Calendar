@@ -52,6 +52,8 @@ class Config:
     check_minutes: int = 5
     port: int = 8000
     data_dir: Path = Path("~/.local/share/wallcal").expanduser()
+    screen_device: str | None = None  # e.g. /dev/fb0 on a Raspberry Pi; None = no screen
+    screen_rotate: int = 0
     base_dir: Path = Path(".")
 
 
@@ -99,6 +101,12 @@ def load(path: str | os.PathLike | None = None) -> Config:
         port=int(hub.get("port", 8000)),
         base_dir=p.parent,
     )
+    screen = raw.get("screen", {})
+    if screen.get("enabled", False):
+        cfg.screen_device = screen.get("device", "/dev/fb0")
+        cfg.screen_rotate = int(screen.get("rotate", 0))
+        if cfg.screen_rotate not in (0, 90, 180, 270):
+            raise SystemExit("[screen] rotate must be 0, 90, 180 or 270.")
     if "data_dir" in hub:
         cfg.data_dir = Path(hub["data_dir"]).expanduser()
     return cfg
