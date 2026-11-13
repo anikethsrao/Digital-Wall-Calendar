@@ -2,7 +2,9 @@ from datetime import date, datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from wallcal import calendars, hub, render, weather
+from PIL import Image
+
+from wallcal import calendars, hub, render, screen, weather
 from wallcal.config import PALETTE, CalendarSource, Config
 
 TZ = ZoneInfo("America/Toronto")
@@ -173,3 +175,45 @@ def test_check_reports_bad_links_in_plain_words(tmp_path, capsys):
     assert "FAIL  Family: the link did not return calendar data" in out
     assert "FAIL  Work: no such file" in out
     assert "OK    School:" in out
+
+
+def test_screen_fit_fills_a_turned_monitor():
+    # A 1200x1600 portrait picture on a 1920x1080 monitor turned on its side.
+    page = Image.new("RGB", (1200, 1600), (0, 0, 0))
+    page.paste((200, 30, 30), (0, 0, 100, 100))  # mark the picture's top-left corner
+    frame = screen.fit(page, 1920, 1080, rotate=90)
+    assert frame.size == (1920, 1080)
+    # Scaled to 1440x1080 (rotated), centred with 240 px white bars left and right.
+    assert frame.getpixel((100, 540)) == (255, 255, 255)
+    assert frame.getpixel((960, 540)) == (0, 0, 0)
+    # Turned 90 degrees clockwise, the picture's top-left sits at the frame's bottom-left.
+    assert frame.getpixel((260, 1060)) == (200, 30, 30)
+    assert frame.getpixel((260, 20)) == (0, 0, 0)
+
+
+def test_screen_fit_without_rotation_keeps_the_page_upright():
+    page = Image.new("RGB", (1200, 1600), (0, 0, 0))
+    frame = screen.fit(page, 1080, 1920)
+    assert frame.size == (1080, 1920)
+    assert frame.getpixel((540, 100)) == (255, 255, 255)   # bar above the 1080x1440 picture
+    assert frame.getpixel((540, 960)) == (0, 0, 0)
+
+
+def test_screen_encode_matches_each_screen_depth():
+    img = Image.new("RGB", (2, 1), (200, 30, 30))
+    assert screen.encode(img, 32, 8)[:4] == bytes([30, 30, 200, 0])          # B G R x
+    assert screen.encode(img, 24, 6)[:3] == bytes([30, 30, 200])
+    # RGB565: r=200>>3=25, g=30>>2=7, b=30>>3=3 -> 0b11001_000111_00011 = 0xC8E3
+    assert screen.encode(img, 16, 4)[:2] == bytes([0xE3, 0xC8])
+    # Rows are padded when the screen's rows are longer than the picture's.
+    assert len(screen.encode(img, 32, 16)) == 16
+
+
+def test_show_writes_a_full_frame(tmp_path, monkeypatch):
+    page = tmp_path / "panel.png"
+    Image.new("RGB", (1200, 1600), (30, 70, 180)).save(page)
+    fb = tmp_path / "fb0"
+    fb.write_bytes(b"")
+    monkeypatch.setattr(screen, "geometry", lambda device: (640, 480, 32, 640 * 4))
+    screen.show(page, str(fb), rotate=90)
+    assert fb.stat().st_size == 640 * 480 * 4

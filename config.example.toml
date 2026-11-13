@@ -19,6 +19,11 @@ units = "celsius"            # or "fahrenheit"
 check_minutes = 5            # how often to look for changes
 port = 8000                  # preview page at http://localhost:8000/
 
+# Raspberry Pi only: paint the picture straight onto the HDMI screen.
+# [screen]
+# enabled = true
+# rotate = 90                # how far the monitor is turned clockwise: 0, 90, 180 or 270
+
 # One block per calendar. The link is the calendar's private iCal address.
 # Colours: blue, red, green, yellow, black.
 [[calendar]]

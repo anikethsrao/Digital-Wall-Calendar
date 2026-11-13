@@ -11,7 +11,7 @@ from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from . import calendars, render, weather
+from . import calendars, render, screen, weather
 from .config import Config
 
 PAGE = """<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="60">
@@ -63,17 +63,35 @@ def update(cfg: Config, out: Path, now: datetime | None = None,
     return digest, redrawn
 
 
+def paint(cfg: Config, out: Path) -> None:
+    """Puts the current picture on the attached screen, if one is set up."""
+    if cfg.screen_device is None:
+        return
+    try:
+        screen.show(out / "panel.png", cfg.screen_device, cfg.screen_rotate)
+    except Exception as exc:
+        print(f"Screen could not be updated: {type(exc).__name__}: {exc}", flush=True)
+
+
 def run(cfg: Config, out: Path) -> None:
     """Checks forever and serves the preview page at http://localhost:<port>/."""
-    update(cfg, out)
+    try:
+        update(cfg, out)
+    except Exception as exc:  # e.g. no network yet just after boot
+        print("first check failed:", exc, flush=True)
+    paint(cfg, out)
     handler = partial(SimpleHTTPRequestHandler, directory=str(out))
     server = ThreadingHTTPServer(("0.0.0.0", cfg.port), handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
-    print(f"Preview at http://localhost:{cfg.port}/  (checking every {cfg.check_minutes} min)")
+    print(f"Preview at http://localhost:{cfg.port}/  (checking every {cfg.check_minutes} min)",
+          flush=True)
     while True:
         time.sleep(cfg.check_minutes * 60)
         try:
             digest, redrawn = update(cfg, out)
-            print(datetime.now().strftime("%H:%M"), "redrawn" if redrawn else "no change", digest)
+            print(datetime.now().strftime("%H:%M"), "redrawn" if redrawn else "no change", digest,
+                  flush=True)
+            if redrawn:
+                paint(cfg, out)
         except Exception as exc:  # keep running through any one bad check
-            print("check failed:", exc)
+            print("check failed:", exc, flush=True)
